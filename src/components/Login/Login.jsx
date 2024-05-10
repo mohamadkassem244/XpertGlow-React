@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 
 import './Login.css';
 
@@ -8,8 +9,9 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [ _ , setCookies] = useCookies(["access_token"]);
   const navigate = useNavigate();
-
+  
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -22,9 +24,13 @@ function Login() {
       .then(response => {
         console.log('Login successful');
         if (response.data.user.isAdmin==true) {
+          setCookies("access_token" , response.data.token);
+          window.localStorage.setItem("UserID" , response.data.user.id);
           navigate('/admin');
         } 
         else if(response.data.user.isAdmin==false) {
+          setCookies("access_token" , response.data.token);
+          window.localStorage.setItem("UserID" , response.data.user.id);
           navigate('/user');
         }
       })
