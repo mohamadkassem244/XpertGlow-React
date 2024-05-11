@@ -12,6 +12,7 @@ function User() {
       try {
         const response = await axios.post('http://localhost:8000/api/logout', {}, {
           headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${cookies.access_token}`
           }

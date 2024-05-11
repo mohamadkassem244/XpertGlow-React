@@ -65,7 +65,7 @@ function Login() {
             </button>
           </div>
           <input type="submit" value="Login" />
-          <a href="#">New Customer?Create your account</a>
+          <a href="/register">New Customer?Create your account</a>
         </form>
       </div>
     </div>

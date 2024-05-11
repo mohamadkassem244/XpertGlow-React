@@ -1,0 +1,10 @@
+.new_arrivals_text{
+    width: 100%;
+    padding: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(25px, 4vw, 45px);
+    font-weight: 600;
+    letter-spacing: 2px;
+}

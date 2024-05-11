@@ -1,17 +1,27 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import Login from './components/Login/Login';
-import User from './User';
-import Admin from './Admin';
+import Login from './components/auth/Login/Login';
+import Register from './components/auth/Register/Register';
+import User from './components/user/User';
+import Admin from './components/admin/Admin';
+import Home from './components/user/Home/Home';
+import Favorite from './components/user/Favorite/Favorite';
+import Cart from './components/user/Cart/Cart';
+import Product from './components/user/Product/Product';
 
 function App() {
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />}/>
-        <Route path="/admin" element={<Admin />}/>
-        <Route path="/user" element={<User />}/>
+        <Route path="/" index element={<Home/>}/>
+        <Route path="/login" element={<Login/>}/>
+        <Route path="/register" element={<Register/>}/>
+        <Route path="/favorite" element={<Favorite/>}/>
+        <Route path="/product/:id" element={<Product/>} />
+        <Route path="/cart" element={<Cart/>}/>
+        <Route path="/admin" element={<Admin/>}/>
+        <Route path="/user" element={<User/>}/>
       </Routes>
     </Router>
   );
