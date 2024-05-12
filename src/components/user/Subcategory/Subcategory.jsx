@@ -18,6 +18,7 @@ function Subcategory(){
     const fetchSubcategory = async () => {
         try {
           const response = await axios.get(`http://localhost:8000/api/subcategories/${id}`);
+          document.title = response.data.subcategory.name;
           setSubcategory(response.data.subcategory);
           setLoading(false);
         } catch (error) {
@@ -40,7 +41,6 @@ function Subcategory(){
         }
     };
     
-
     useEffect(() => {
         fetchSubcategory();
         fetchFavorites();

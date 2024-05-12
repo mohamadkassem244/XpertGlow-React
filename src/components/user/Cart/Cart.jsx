@@ -6,11 +6,16 @@ import './Cart.css';
 
 function Cart(){
 
-    const [cookies] = useCookies("access_token");
+    const [cookies] = useCookies(["access_token"]);
     const [cart, setCart] = useState([]);
     const [addresses, setAddresses] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
+    const [selectedAddressValue, setSelectedAddressValue] = useState('');
+
+    const handleAddressChange = (event) => {
+      setSelectedAddressValue(event.target.value);
+    };
 
     const fetchCart = async () => {
         try {
@@ -42,6 +47,91 @@ function Cart(){
         }
       };
 
+      const removeItem = async (cartItemId) => {
+        try {
+          const response = await axios.delete(`http://localhost:8000/api/remove_from_cart/${cartItemId}`, {
+            headers: {
+              'Authorization': `Bearer ${cookies.access_token}`,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          fetchCart();
+        } catch (error) {
+          console.error('Error removing cart item from cart:', error);
+        }
+      };
+
+      const clearCart = async () => {
+        try {
+          const response = await axios.delete('http://localhost:8000/api/cart/clear', {
+            headers: {
+              'Authorization': `Bearer ${cookies.access_token}`,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          fetchCart();
+        } catch (error) {
+          console.error('Error clearing cart:', error);
+        }
+      };
+
+      const increaseQuantity = async (cartItemId ,  cartItemQuantity) => {
+          try {
+            const response = await axios.post(`http://localhost:8000/api/update_cart_item_quantity/${cartItemId}`,{
+            quantity: cartItemQuantity+1,
+            }, {
+              headers: {
+                'Authorization': `Bearer ${cookies.access_token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+            });
+            fetchCart();
+          } catch (error) {
+            console.error('Error increasing quantity:', error);
+          }
+      };
+
+      const decreaseQuantity = async (cartItemId ,  cartItemQuantity) => {
+        if(cartItemQuantity>1){
+          try {
+            const response = await axios.post(`http://localhost:8000/api/update_cart_item_quantity/${cartItemId}`,{
+            quantity: cartItemQuantity-1,
+            }, {
+              headers: {
+                'Authorization': `Bearer ${cookies.access_token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+            });
+            fetchCart();
+          } catch (error) {
+            console.error('Error increasing quantity:', error);
+          }
+        }
+      };
+
+      const placeOrder = async () => {
+        if (selectedAddressValue) {
+          try {
+            const response = await axios.post('http://localhost:8000/api/place_order',{
+              address_id: selectedAddressValue,
+            }, {
+              headers: {
+                'Authorization': `Bearer ${cookies.access_token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+            });
+            fetchCart();
+          } catch (error) {
+            console.error('Error placing order:', error);
+          }
+        }
+      };
+
       useEffect(() => {
         fetchCart();
         fetchAddresses();
@@ -61,7 +151,7 @@ function Cart(){
 return(
     <>
     <Header/>
-    <div className="cart_wrapper" data-cart-id="">
+    <div className="cart_wrapper">
         <div className="all_items">
           
         <div className="item empty-item">
@@ -69,12 +159,12 @@ return(
             <div className="item_name"></div>
             <div className="item_quantity"></div>
             <div className="item_subtotal"></div>
-            <div className="item_delete"><button id="remove_all"><i className="fa-solid fa-trash"></i></button></div>
+            <div className="item_delete"><button id="remove_all" onClick={clearCart}><i className="fa-solid fa-trash"></i></button></div>
         </div>
      
         {cart.map(cartItem => (
 
-        <div className="item" data-item-id="">
+        <div className="item" key={cartItem.id}>
             <div className="item_image">
                 <div className="image_container">
                 <img src={require(`../../../images/products/${cartItem.product.images[0].path}`)} />
@@ -83,19 +173,20 @@ return(
             <div className="item_name">
                 <a href="">{cartItem.product.name}</a>
             </div>
+
             <div className="item_quantity">
                 <div className="input_container">
-                    <button id="decrease">-</button>
-                    <input type="number" id="quantity" value={cartItem.quantity} min="1" readonly/>
-                    <button id="increase" >+</button>
+                    <button id="decrease" onClick={() => decreaseQuantity(cartItem.id, cartItem.quantity)}>-</button>
+                    <input type="number" id="quantity" value={cartItem.quantity} min="1" readOnly={true}/>
+                    <button id="increase" onClick={() => increaseQuantity(cartItem.id, cartItem.quantity)}>+</button>
                 </div>
             </div>
 
-            <div className="item_subtotal" data-price-per-item="">
+            <div className="item_subtotal">
             ${ (cartItem.quantity * cartItem.product.price).toFixed(2) }
             </div>
 
-            <div className="item_delete"><button id="remove"><i className="fa-solid fa-delete-left"></i></button></div>
+            <div className="item_delete"><button id="remove" onClick={() => removeItem(cartItem.id)}><i className="fa-solid fa-delete-left"></i></button></div>
         </div>
 
         ))}
@@ -106,23 +197,20 @@ return(
             <div className="check_items">Item(s) : <span>{totalItems}</span></div>
             <div className="check_price">Total Price : <span>${ (totalPrice).toFixed(2) }</span></div>
             <div className="check_address">
-                <select id="address-select" name="address-select" required>
-                <option value="" disabled selected>Select an Address</option>
-
+                <select id="address-select" name="address-select" required  value={selectedAddressValue} onChange={handleAddressChange}>
+                <option value="" disabled>Select an Address</option>
                 {addresses.filter(address => address.isDeleted === 0).map(address => (
                      <option key={address.id} value={address.id}>
                      {address.name} {address.surname} / {address.district} - {address.locality} - {address.phone}
                    </option>
                 ))}
-
                 </select>
             </div>
-            <div className="check_place" data-cart-id="">
-                <button id="place_order" >Place Order</button>
+            <div className="check_place">
+                <button id="place_order" onClick={placeOrder}>Place Order</button>
             </div>
         </div>
         </div>
-
     </>
 );
 }

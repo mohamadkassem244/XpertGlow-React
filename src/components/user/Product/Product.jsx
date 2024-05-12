@@ -7,6 +7,7 @@ import './Product.css';
 
 function Product(){
 
+    const [cookies] = useCookies(["access_token"]);
     const { id } = useParams();
     const [product, setProduct] = useState([]);
     const [mainImage, setMainImage] = useState('');
@@ -15,16 +16,13 @@ function Product(){
     const fetchProduct = async () => {
         try {
           const response = await axios.get(`http://localhost:8000/api/products/${id}`);
+          document.title = response.data.product.name;
           setProduct(response.data.product);
           setMainImage(response.data.product.images[0].path);
         } catch (error) {
           console.error('Error fetching Product:', error);
         }
     };
-
-      useEffect(() => {
-        fetchProduct();
-      }, [id]);
 
     const handleImageChange = (imagePath) => {
         setMainImage(imagePath);
@@ -40,20 +38,40 @@ function Product(){
         }
     };
 
+    const addToCart = async () => {
+        try {
+            const response = await axios.post(`http://localhost:8000/api/add_to_cart/${id}`, {
+            quantity: quantity,
+          }, {
+            headers: {
+              'Authorization': `Bearer ${cookies.access_token}`,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+        } catch (error) {
+          console.error('Error adding product to cart:', error);
+        }
+      };
+
+    useEffect(() => {
+       fetchProduct();
+    }, [id]);
+
     return(
         <>
         <Header/>
-            <div class="product_wrapper">
+            <div className="product_wrapper">
 
-                <div class="add_to_favorite" data-id="">
-                    <button class="favorite_button" data-in-favorites="">
-                        <i class="fa-regular fa-heart"></i>
+                <div className="add_to_favorite" data-id="">
+                    <button className="favorite_button" data-in-favorites="">
+                        <i className="fa-regular fa-heart"></i>
                     </button>
                 </div>
 
-                <div class="images_container">
-                    <div class="image_display_container">
-                        <div class="image_display">
+                <div className="images_container">
+                    <div className="image_display_container">
+                        <div className="image_display">
                         {product.images && product.images.length > 0 &&
                         <img id="main_image" src={require(`../../../images/products/${mainImage}`)} alt="Main Image" />
                         }
@@ -68,19 +86,19 @@ function Product(){
                     </div>
                 </div>
 
-                <div class="content_container">
-                    <div class="content_top">
-                        <div class="top_name">{product.name}</div>
-                        <div class="top_price">${product.price}</div>
-                        <div class="middle_description">{product.description}</div>
+                <div className="content_container">
+                    <div className="content_top">
+                        <div className="top_name">{product.name}</div>
+                        <div className="top_price">${product.price}</div>
+                        <div className="middle_description">{product.description}</div>
                     </div>
-                    <div class="content_input">
-                        <div class="input_container">
+                    <div className="content_input">
+                        <div className="input_container">
                             <button id="decrease" onClick={decreaseQuantity}>-</button>
-                            <input type="number" id="quantity" value={quantity} min="1" readonly/>
+                            <input type="number" id="quantity" value={quantity} min="1" readOnly={true}/>
                             <button id="increase" onClick={increaseQuantity}>+</button>
                         </div>
-                        <button id="addToCart" data-id="{{ $product->id }}">Add to Cart</button>
+                        <button id="addToCart" onClick={addToCart}>Add to Cart</button>
                     </div>
                 </div>
         </div>
