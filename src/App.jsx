@@ -8,6 +8,7 @@ import Home from './components/user/Home/Home';
 import Favorite from './components/user/Favorite/Favorite';
 import Cart from './components/user/Cart/Cart';
 import Product from './components/user/Product/Product';
+import Subcategory from './components/user/Subcategory/Subcategory';
 
 function App() {
 
@@ -18,7 +19,8 @@ function App() {
         <Route path="/login" element={<Login/>}/>
         <Route path="/register" element={<Register/>}/>
         <Route path="/favorite" element={<Favorite/>}/>
-        <Route path="/product/:id" element={<Product/>} />
+        <Route path="/product/:id" element={<Product/>}/>
+        <Route path="/subcategory/:id" element={<Subcategory/>}/>
         <Route path="/cart" element={<Cart/>}/>
         <Route path="/admin" element={<Admin/>}/>
         <Route path="/user" element={<User/>}/>

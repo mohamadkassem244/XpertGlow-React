@@ -8,6 +8,24 @@ function Favorite(){
 
     const [cookies] = useCookies("access_token");
     const [favorites, setFavorites] = useState([]);
+
+    const addToFavoritesToggle = (productId) => {
+        addToFavorites(productId);
+    };
+
+    const addToFavorites = async (productId) => {
+        try {
+          const response = await axios.post(`http://localhost:8000/api/toggle_favorite/${productId}`, null, {
+            headers: {
+                'Authorization': `Bearer ${cookies.access_token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+          });
+        } catch (error) {
+          console.error('Error adding to Favorites:', error);
+        }
+    };
     
     const fetchFavorites = async () => {
       try {
@@ -31,11 +49,12 @@ function Favorite(){
     return(
         <>
         <Header/>
+        
         <div className="products_container" style={{marginTop: "70px"}}>
             {favorites.map(favorite => (
                 <div key={favorite.product.id} className="product_item">
-                    <div className="add_to_favorite" data-id={favorite.product.id}>
-                        <button className="favorite_button" >
+                    <div className="add_to_favorite">
+                        <button className="favorite_button" onClick={() => addToFavoritesToggle(favorite.product.id)}>
                             <i className= "fa-solid fa-heart"></i>
                         </button>
                     </div>
@@ -55,6 +74,7 @@ function Favorite(){
                 </div>
             ))}
         </div>
+
         </>
     );
 }

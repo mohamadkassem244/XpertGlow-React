@@ -104,7 +104,6 @@ function Header(){
                     <button className={isSearchOpen ? "nav_right_search close" : "nav_right_search"} onClick={openSearch}>
                         <i className="fa-solid fa-magnifying-glass"></i>
                     </button>
-              
 
                     <a href="/favorite">
                     <button className="nav_right_favorite">
