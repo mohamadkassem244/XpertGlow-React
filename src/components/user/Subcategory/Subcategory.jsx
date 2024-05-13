@@ -5,6 +5,7 @@ import { useCookies } from "react-cookie";
 import Header from "../Header/Header";
 import Cards from "../Cards/Cards";
 import './Subcategory.css';
+import '../Utilities/No_results.css';
 
 function Subcategory(){
 
@@ -50,9 +51,17 @@ function Subcategory(){
     return(
         <>
         <Header/>
+        {Object.keys(subcategory).length > 0 ?
         <div style={{ marginTop: "70px" }}>
-            <Cards products={subcategory.products} favorites={favorites} />
+        <Cards products={subcategory.products} favorites={favorites} />
         </div>
+        :
+        <div class="no_results">
+            <div class="no_results_i"><i class="fa-solid fa-ban"></i></div>
+            <div class="no_results_text">This Subcategory Not found</div>
+        </div> 
+        }
+        
         </>
     );
 }

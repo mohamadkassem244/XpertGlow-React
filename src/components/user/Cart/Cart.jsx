@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from "react-cookie";
+import { useNavigate} from 'react-router-dom';
 import Header from "../Header/Header";
 import './Cart.css';
+import '../Utilities/No_results.css';
 
 function Cart(){
-
+    document.title = "Your Cart";
     const [cookies] = useCookies(["access_token"]);
     const [cart, setCart] = useState([]);
     const [addresses, setAddresses] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
     const [selectedAddressValue, setSelectedAddressValue] = useState('');
+    const navigate = useNavigate();
 
     const handleAddressChange = (event) => {
       setSelectedAddressValue(event.target.value);
@@ -32,7 +35,7 @@ function Cart(){
         }
       };
 
-    const fetchAddresses = async () => {
+       const fetchAddresses = async () => {
         try {
           const response = await axios.get('http://localhost:8000/api/user/addresses', {
             headers: {
@@ -148,69 +151,82 @@ function Cart(){
         setTotalPrice(price);
       }, [cart]);
 
+      useEffect(() => {
+        if (!cookies.access_token) {
+          navigate('/');
+        }
+      }, [cookies.access_token]);
+
 return(
     <>
     <Header/>
-    <div className="cart_wrapper">
-        <div className="all_items">
-          
-        <div className="item empty-item">
-            <div className="item_image"></div>
-            <div className="item_name"></div>
-            <div className="item_quantity"></div>
-            <div className="item_subtotal"></div>
-            <div className="item_delete"><button id="remove_all" onClick={clearCart}><i className="fa-solid fa-trash"></i></button></div>
-        </div>
-     
-        {cart.map(cartItem => (
-
-        <div className="item" key={cartItem.id}>
-            <div className="item_image">
-                <div className="image_container">
-                <img src={require(`../../../images/products/${cartItem.product.images[0].path}`)} />
-                </div>
-            </div>
-            <div className="item_name">
-                <a href="">{cartItem.product.name}</a>
-            </div>
-
-            <div className="item_quantity">
-                <div className="input_container">
-                    <button id="decrease" onClick={() => decreaseQuantity(cartItem.id, cartItem.quantity)}>-</button>
-                    <input type="number" id="quantity" value={cartItem.quantity} min="1" readOnly={true}/>
-                    <button id="increase" onClick={() => increaseQuantity(cartItem.id, cartItem.quantity)}>+</button>
-                </div>
-            </div>
-
-            <div className="item_subtotal">
-            ${ (cartItem.quantity * cartItem.product.price).toFixed(2) }
-            </div>
-
-            <div className="item_delete"><button id="remove" onClick={() => removeItem(cartItem.id)}><i className="fa-solid fa-delete-left"></i></button></div>
-        </div>
-
-        ))}
+    {cart && cart.length > 0 ?
+          <div className="cart_wrapper">
+          <div className="all_items">
+            
+          <div className="item empty-item">
+              <div className="item_image"></div>
+              <div className="item_name"></div>
+              <div className="item_quantity"></div>
+              <div className="item_subtotal"></div>
+              <div className="item_delete"><button id="remove_all" onClick={clearCart}><i className="fa-solid fa-trash"></i></button></div>
+          </div>
        
-        </div>
-        <div className="check">
-            <div className="check_summary">Summary</div>
-            <div className="check_items">Item(s) : <span>{totalItems}</span></div>
-            <div className="check_price">Total Price : <span>${ (totalPrice).toFixed(2) }</span></div>
-            <div className="check_address">
-                <select id="address-select" name="address-select" required  value={selectedAddressValue} onChange={handleAddressChange}>
-                <option value="" disabled>Select an Address</option>
-                {addresses.filter(address => address.isDeleted === 0).map(address => (
-                     <option key={address.id} value={address.id}>
-                     {address.name} {address.surname} / {address.district} - {address.locality} - {address.phone}
-                   </option>
-                ))}
-                </select>
-            </div>
-            <div className="check_place">
-                <button id="place_order" onClick={placeOrder}>Place Order</button>
-            </div>
-        </div>
-        </div>
+          {cart.map(cartItem => (
+  
+          <div className="item" key={cartItem.id}>
+              <div className="item_image">
+                  <div className="image_container">
+                  <img src={require(`../../../images/products/${cartItem.product.images[0].path}`)} />
+                  </div>
+              </div>
+              <div className="item_name">
+                  <a href="">{cartItem.product.name}</a>
+              </div>
+  
+              <div className="item_quantity">
+                  <div className="input_container">
+                      <button id="decrease" onClick={() => decreaseQuantity(cartItem.id, cartItem.quantity)}>-</button>
+                      <input type="number" id="quantity" value={cartItem.quantity} min="1" readOnly={true}/>
+                      <button id="increase" onClick={() => increaseQuantity(cartItem.id, cartItem.quantity)}>+</button>
+                  </div>
+              </div>
+  
+              <div className="item_subtotal">
+              ${ (cartItem.quantity * cartItem.product.price).toFixed(2) }
+              </div>
+  
+              <div className="item_delete"><button id="remove" onClick={() => removeItem(cartItem.id)}><i className="fa-solid fa-delete-left"></i></button></div>
+          </div>
+  
+          ))}
+         
+          </div>
+          <div className="check">
+              <div className="check_summary">Summary</div>
+              <div className="check_items">Item(s) : <span>{totalItems}</span></div>
+              <div className="check_price">Total Price : <span>${ (totalPrice).toFixed(2) }</span></div>
+              <div className="check_address">
+                  <select id="address-select" name="address-select" required  value={selectedAddressValue} onChange={handleAddressChange}>
+                  <option value="" disabled>Select an Address</option>
+                  {addresses.filter(address => address.isDeleted === 0).map(address => (
+                       <option key={address.id} value={address.id}>
+                       {address.name} {address.surname} / {address.district} - {address.locality} - {address.phone}
+                     </option>
+                  ))}
+                  </select>
+              </div>
+              <div className="check_place">
+                  <button id="place_order" onClick={placeOrder}>Place Order</button>
+              </div>
+          </div>
+          </div> 
+          : 
+          <div class="no_results">
+          <div class="no_results_i"><i class="fa-solid fa-ban"></i></div>
+          <div class="no_results_text">Your Cart is Empty</div>
+          </div>
+          }
     </>
 );
 }

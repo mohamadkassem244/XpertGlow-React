@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
@@ -6,36 +6,39 @@ import { useCookies } from 'react-cookie';
 import './Login.css';
 
 function Login() {
+  document.title = "XpertGlow | LOGIN";
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [ _ , setCookies] = useCookies(["access_token"]);
+  const [message, setMessage] = useState("");
+  const [cookies, setCookies] = useCookies(["access_token"]);
   const navigate = useNavigate();
   
   const handleSubmit = (event) => {
     event.preventDefault();
-
     const credentials = {
       email: email,
       password: password
     };
-
     axios.post('http://localhost:8000/api/login', credentials)
       .then(response => {
-        console.log('Login successful');
-        if (response.data.user.isAdmin==true) {
-          setCookies("access_token" , response.data.token);
-          window.localStorage.setItem("UserID" , response.data.user.id);
+        setCookies("access_token" , response.data.token);
+        window.localStorage.setItem("UserID" , response.data.user.id);
+        window.localStorage.setItem("UserName" , response.data.user.name);
+        const isAdmin = response.data.user.isAdmin;
+        if(isAdmin){
           navigate('/admin');
-        } 
-        else if(response.data.user.isAdmin==false) {
-          setCookies("access_token" , response.data.token);
-          window.localStorage.setItem("UserID" , response.data.user.id);
-          navigate('/user');
+        }
+        else{
+          navigate('/');
         }
       })
       .catch(error => {
-        console.error('Login failed: ', error);
+        if (error.response && error.response.status === 401) {
+          setMessage(error.response.data.message);
+        } else {
+          setMessage(error.response.data.message);
+        }
       });
   };
 
@@ -43,11 +46,18 @@ function Login() {
     setShowPassword(!showPassword);
   };
 
+  useEffect(() => {
+    if (cookies.access_token) {
+      navigate('/');
+    }
+  }, [cookies.access_token]);
+
   return (
     <div className="form_wrapper">
       <div className="form_container">
         <h1>XpertGlow</h1>
         <h2>Login</h2>
+        <h3>{message}</h3>
         <form onSubmit={handleSubmit}>
           <div className="form_item">
             <div className="form_item_i">

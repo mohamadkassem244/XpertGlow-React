@@ -6,12 +6,17 @@ import './Header.css';
 
 function Header(){
 
+    const [isLogin, setIsLogin] = useState(false);
     const [categories, setCategories] = useState([]);
     const [isCategoriesOpen, setCategoriesOpen] = useState(false);
     const [isUserOptionsOpen, setUserOptions] = useState(false);
     const [isSearchOpen, setSearchOpen] = useState(false);
     const [isLoginOptionsOpen, setLoginOptionsOpen] = useState(false);
-    const openCategories = () => { setCategoriesOpen(true);};
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    const openCategories = () => {setCategoriesOpen(true);};
     const closeCategories = () => {setCategoriesOpen(false);};
     const openUserOptions = () => {setUserOptions(true);};
     const closeUserOptions = () => {setUserOptions(false);};
@@ -21,6 +26,7 @@ function Header(){
 
     const[cookies , setCookies] = useCookies("access_token");
     const navigate = useNavigate();
+    
     const removeCookies = async () =>{
         try {
           const response = await axios.post('http://localhost:8000/api/logout', {}, {
@@ -34,6 +40,7 @@ function Header(){
           if (response.status === 200) {
             setCookies("access_token", "");
             window.localStorage.removeItem("UserID");
+            window.localStorage.removeItem("UserName");
             navigate('/login');
           } else {
             console.error('Logout request failed');
@@ -41,24 +48,54 @@ function Header(){
         } catch (error) {
           console.error('Network error', error);
         }
-    }
+    };
 
     const fetchCategories = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/categories');
-            const categoriesWithSubcategories = await Promise.all(response.data.categories.map(async (category) => {
-                const subcategoriesResponse = await axios.get(`http://localhost:8000/api/categories/${category.id}/subcategories`);
-                category.subcategories = subcategoriesResponse.data.subcategories;
-                return category;
-            }));
-            setCategories(categoriesWithSubcategories);
+            setCategories(response.data.categories);
         } catch (error) {
             console.error('Error fetching categories:', error);
         }
     };
 
+    const handleSearchInputChange = async (e) => {
+        const q = e.target.value.trim();
+        setSearchQuery(q);
+        if (q.length > 0) {
+            setSearchResults([]);
+            setLoading(true);
+            try {
+                const response = await axios.get('http://localhost:8000/api/search', {
+                    params: { q: q }
+                });
+                setSearchResults(response.data.products);
+            } catch (error) {
+                console.error('Error fetching Products:', error);
+            }
+            finally {
+                setLoading(false);
+            }
+        }
+        else {
+            setSearchResults([]);
+        }
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        if (searchQuery) {
+            navigate(`/search?query=${searchQuery}`);
+        }
+    };
+
     useEffect(() => {
         fetchCategories();
+        if (cookies.access_token) {
+            setIsLogin(true);
+          } else {
+            setIsLogin(false);
+        }
       }, []);
 
     return(
@@ -82,19 +119,31 @@ function Header(){
                 </button>
 
                 <div className="search_container">
-                    <form action="/search/page" method="GET">
-                        <input type="text" id="searchInput" name="query" required placeholder="Search for Products"/>
-                        <input type="submit" value="Search"/>
+                    <form onSubmit={handleSearchSubmit}>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        name="query"
+                        required
+                        placeholder="Search for Products"
+                        value={searchQuery}
+                        onChange={handleSearchInputChange}
+                    />
+                    <input type="submit" value="Search" />
                     </form>
-                </div>
+             </div>
             
-                <div className="search_results">
+                <div className={searchQuery ? "search_results block" : "search_results"}>
                     <ul id="searchResults">
+                        {!loading &&
+                           searchResults.map((product) => (
+                           <li key={product.id}>
+                              <a href={`/product/${product.id}`}>{product.name}</a>
+                           </li>
+                        ))}
+                        {!loading && searchQuery && searchResults.length === 0 && <li>No results found</li>}
                     </ul>
-                    <div className="loader" id="loader">
-                        <i className="fa-solid fa-spinner"></i>
-                    </div>
-
+                    {loading && <div className="loader block"><i className="fa-solid fa-spinner"></i></div>}
                 </div>
              
             </div>
@@ -105,25 +154,32 @@ function Header(){
                         <i className="fa-solid fa-magnifying-glass"></i>
                     </button>
 
-                    <a href="/favorite">
-                    <button className="nav_right_favorite">
-                        <i className="fa-solid fa-heart"></i>
-                    </button>
-                    </a>
+                    {isLogin ? (
+                        <>
+                        <a href="/favorite">
+                        <button className="nav_right_favorite">
+                            <i className="fa-solid fa-heart"></i>
+                        </button>
+                        </a>
                     
-                    <a href="/cart">
-                    <button className="nav_right_cart">
-                        <i className="fa-solid fa-cart-shopping"></i>
-                    </button>
-                    </a>
+                        <a href="/cart">
+                        <button className="nav_right_cart">
+                            <i className="fa-solid fa-cart-shopping"></i>
+                        </button>
+                        </a>
 
-                    <button className="nav_right_user" onClick={openUserOptions}>
+                        <button className="nav_right_user" onClick={openUserOptions}>
                         <i className="fa-solid fa-user"></i>
-                    </button>
-            
-                    <button className="nav_right_login" onClick={toggleLoginOptions}>
-                        <i className="fa-solid fa-right-to-bracket"></i>
-                    </button>
+                        </button>
+                        </>
+                    ):(
+                        <button className="nav_right_login" onClick={toggleLoginOptions}>
+                            <i className="fa-solid fa-right-to-bracket"></i>
+                        </button>
+                    )
+                    }
+
+                    
     
                     <div id="login_options" className={isLoginOptionsOpen ? "login_options block" : "login_options"}>
                         <h3>Welcome to XpertGlow</h3>
@@ -151,10 +207,10 @@ function Header(){
         <div id="xpertglow_nav_3" className={isUserOptionsOpen ? "xpertglow_nav_3 opennav" : "xpertglow_nav_3"}>
             <div className="close_btn"><button onClick={closeUserOptions}><i className="fa-solid fa-xmark"></i></button></div>
             <div id="user_options_container" className={isUserOptionsOpen ? "user_options_container open" : "user_options_container"}>
-                <a href="#" className="user_option">
+                <a href="/account" className="user_option">
                     <button><i className="fa-solid fa-gears"></i>Account</button>
                 </a>
-                <a href="#" className="user_option">
+                <a href="/order" className="user_option">
                     <button><i className="fa-solid fa-truck"></i>Orders</button>
                 </a>
                 <a className="user_option">

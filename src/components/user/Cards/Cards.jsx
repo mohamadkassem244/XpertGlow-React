@@ -1,28 +1,34 @@
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from "react-cookie";
+import { useNavigate } from 'react-router-dom';
 import './Cards.css';
 import { Link } from 'react-router-dom';
 
 function Cards({ products, favorites }){
 
     const [cookies] = useCookies(["access_token"]);
+    const navigate = useNavigate();
 
     const addToFavoritesToggle = (productId) => {
       addToFavorites(productId);
     };
 
     const addToFavorites = async (productId) => {
-        try {
-          const response = await axios.post(`http://localhost:8000/api/toggle_favorite/${productId}`, null, {
-            headers: {
-                'Authorization': `Bearer ${cookies.access_token}`,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
+        if (cookies.access_token) {
+            try {
+                const response = await axios.post(`http://localhost:8000/api/toggle_favorite/${productId}`, null, {
+                  headers: {
+                      'Authorization': `Bearer ${cookies.access_token}`,
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    }
+                });
+              } catch (error) {
+                console.error('Error adding to Favorites:', error);
               }
-          });
-        } catch (error) {
-          console.error('Error adding to Favorites:', error);
+        }
+        else{
+            navigate('/login');
         }
     };
 

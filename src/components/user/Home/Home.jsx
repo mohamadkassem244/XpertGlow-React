@@ -7,7 +7,7 @@ import Cards from "../Cards/Cards";
 import './Home.css';
 
 function Home(){
-
+    document.title = "Welcome To XpertGlow";
     const [cookies] = useCookies("access_token");
     const [products, setProducts] = useState([]);
     const [favorites, setFavorites] = useState([]);
@@ -26,18 +26,20 @@ function Home(){
     };
 
     const fetchFavorites = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/all_favorites', {
-          headers: {
-            'Authorization': `Bearer ${cookies.access_token}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
-        setFavorites(response.data.favorites);
-      } catch (error) {
-        console.error('Error fetching favorites:', error);
-      }
+      if (cookies.access_token) {
+        try {
+          const response = await axios.get('http://localhost:8000/api/all_favorites', {
+            headers: {
+              'Authorization': `Bearer ${cookies.access_token}`,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          setFavorites(response.data.favorites);
+        } catch (error) {
+          console.error('Error fetching favorites:', error);
+        }
+      } 
     };
     
 

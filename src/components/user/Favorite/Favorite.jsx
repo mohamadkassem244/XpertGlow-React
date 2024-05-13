@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from "react-cookie";
+import { useNavigate} from 'react-router-dom';
 import Header from "../Header/Header";
 import './Favorite.css';
+import '../Utilities/No_results.css';
 
 function Favorite(){
-
+    document.title = "Your Favorite(s)";
     const [cookies] = useCookies("access_token");
     const [favorites, setFavorites] = useState([]);
+    const navigate = useNavigate();
 
     const addToFavoritesToggle = (productId) => {
         addToFavorites(productId);
@@ -41,6 +44,12 @@ function Favorite(){
         console.error('Error fetching favorites:', error);
       }
     };
+
+    useEffect(() => {
+      if (!cookies.access_token) {
+        navigate('/');
+      }
+    }, [cookies.access_token]);
     
     useEffect(() => {
         fetchFavorites();
@@ -49,32 +58,37 @@ function Favorite(){
     return(
         <>
         <Header/>
-        
+        {Object.keys(favorites).length > 0 ?
         <div className="products_container" style={{marginTop: "70px"}}>
-            {favorites.map(favorite => (
-                <div key={favorite.product.id} className="product_item">
-                    <div className="add_to_favorite">
-                        <button className="favorite_button" onClick={() => addToFavoritesToggle(favorite.product.id)}>
-                            <i className= "fa-solid fa-heart"></i>
-                        </button>
-                    </div>
-                    <div className="item_top">
-                        <a href="#">
-                            {favorite.product.images && favorite.product.images.length > 0 &&
-                                <img src={require(`../../../images/products/${favorite.product.images[0].path}`)} alt={favorite.product.name} />
-                            }
-                        </a>
-                    </div>
-                    <div className="item_bottom">
-                        <div className="item_name">
-                            <a href="#">{favorite.product.name}</a>
-                        </div>
-                        <div className="item_price">$ {favorite.product.price}</div>
-                    </div>
+        {favorites.map(favorite => (
+            <div key={favorite.product.id} className="product_item">
+                <div className="add_to_favorite">
+                    <button className="favorite_button" onClick={() => addToFavoritesToggle(favorite.product.id)}>
+                        <i className= "fa-solid fa-heart"></i>
+                    </button>
                 </div>
-            ))}
+                <div className="item_top">
+                    <a href="#">
+                        {favorite.product.images && favorite.product.images.length > 0 &&
+                            <img src={require(`../../../images/products/${favorite.product.images[0].path}`)} alt={favorite.product.name} />
+                        }
+                    </a>
+                </div>
+                <div className="item_bottom">
+                    <div className="item_name">
+                        <a href="#">{favorite.product.name}</a>
+                    </div>
+                    <div className="item_price">$ {favorite.product.price}</div>
+                </div>
+            </div>
+        ))}
         </div>
-
+        :
+        <div class="no_results">
+            <div class="no_results_i"><i class="fa-solid fa-heart-crack"></i></div>
+            <div class="no_results_text">Your Favorites is Empty</div>
+        </div> 
+        }
         </>
     );
 }
