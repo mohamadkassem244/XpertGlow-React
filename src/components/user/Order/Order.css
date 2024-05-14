@@ -1,9 +1,3 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 .orders_container{
     max-width: 900px;
     margin: 90px auto 0  auto;
@@ -26,7 +20,7 @@
     font-weight: bold;
 }
 
-.order_status{
+.orders_container .order_item .order_status{
     text-transform: capitalize;
 }
 

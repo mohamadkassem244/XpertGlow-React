@@ -1,9 +1,3 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 .cart_wrapper{
     display: flex;
     max-width: 1200px;
@@ -13,7 +7,7 @@
     overflow: hidden;
 }
 
-.all_items{
+.cart_wrapper .all_items{
     flex: 2; 
     display: flex;
     flex-direction: column;
@@ -24,7 +18,7 @@
     height: min-content;
 }
 
-.item:first-child{
+.cart_wrapper .all_items .item:first-child{
     border: none;
 }
 
@@ -55,7 +49,7 @@
     object-fit: contain;
 }
 
-.item_name{
+.all_items .item .item_name{
     margin: 0 20px 0 0;
     flex: 1.5;
     display: flex;
@@ -70,12 +64,11 @@
     font-weight: bold;
 }
 
-.item_quantity{
+.all_items .item .item_quantity{
     flex: 1.5;
     display: flex;
     align-items: center;
-    justify-content: center;
-   
+    justify-content: center;  
 }
 
 .item_quantity .input_container{
@@ -96,7 +89,7 @@
     border: none;
 }
 
-.item_quantity .input_container button{
+.item .item_quantity .input_container button{
     width: 30%; 
     background-color: black;
     color: white;
@@ -105,7 +98,7 @@
     text-align: center;
 }
 
-.item_quantity .input_container input{
+.item .item_quantity .input_container input{
     width: 40%; 
     font-size: 15px;
     font-weight: bold;
