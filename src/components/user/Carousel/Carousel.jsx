@@ -44,7 +44,11 @@ function Carousel() {
       <div className="carousel_slide" style={{ width: `${100 * carousels.length}%`, transform: `translateX(-${counter * (100 / carousels.length)}%)` }}>
         {carousels.map((carousel) => (
           <a href={carousel.carouselable_type === "App\\Models\\Product" ? `/product/${carousel.carouselable_id}` : `/subcategory/${carousel.carouselable_id}`} key={carousel.id}>
-          <img src={require(`../../../images/carousels/${carousel.image.path}`)} />
+          {carousel.image.path ? (
+                <img src={require(`../../../images/carousels/${carousel.image.path}`)} />
+              ) : (
+                <img src="" alt="No Image" />
+            )}
           </a>
         ))}
       </div>

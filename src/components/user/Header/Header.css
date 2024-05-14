@@ -279,25 +279,15 @@
     font-size: 1.1rem;
 }
 
-.icon {
-    transition: transform 0.3s ease;
-}
-.icon.rotate {
-    transform: rotate(180deg);
-}
-
-.category.active .sub_category{
-    margin: 8px 0 8px 20px;
-}
-
 .sub_category {
     display: block;
-    height: 0;
+    height: auto;
     overflow: hidden;
     transition: height 0.3s ;
     font-size: 1rem;
     text-decoration: none;
     color: black;
+    margin: 8px 0 8px 20px;
 }
 
 .xpertglow_nav_3{

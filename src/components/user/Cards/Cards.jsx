@@ -1,16 +1,42 @@
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from "react-cookie";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate ,Link } from 'react-router-dom';
 import './Cards.css';
-import { Link } from 'react-router-dom';
+import Notification from '../Notification/Notification';
 
-function Cards({ products, favorites }){
+function Cards({products}){
 
     const [cookies] = useCookies(["access_token"]);
+    const [favorites, setFavorites] = useState([]);
     const navigate = useNavigate();
+    const [showNotification, setShowNotification] = useState(false);
+    const [message, setMessage] = useState("");
 
-    const addToFavoritesToggle = (productId) => {
-      addToFavorites(productId);
+    const closeNotification = () => {
+        setShowNotification(false);
+    };
+
+    const addToFavoritesToggle = async (productId) => {
+        await addToFavorites(productId);
+        fetchFavorites();
+    };
+
+    const fetchFavorites = async () => {
+        if (cookies.access_token) {
+          try {
+            const response = await axios.get('http://localhost:8000/api/all_favorites', {
+              headers: {
+                'Authorization': `Bearer ${cookies.access_token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+            });
+            setFavorites(response.data.favorites);
+          } catch (error) {
+            console.error('Error fetching favorites:', error);
+          }
+        } 
     };
 
     const addToFavorites = async (productId) => {
@@ -23,6 +49,8 @@ function Cards({ products, favorites }){
                       'Content-Type': 'application/json'
                     }
                 });
+                setMessage(response.data.message);
+                setShowNotification(true);
               } catch (error) {
                 console.error('Error adding to Favorites:', error);
               }
@@ -32,8 +60,16 @@ function Cards({ products, favorites }){
         }
     };
 
+    useEffect(() => {
+        fetchFavorites();
+    }, []);
+
     return(
         <>
+            {showNotification && (
+                <Notification message={message} onClose={closeNotification} />
+            )}
+
             <div className="products_container">
                 {products.map(product => (
                     <div key={product.id} className="product_item">

@@ -5,15 +5,23 @@ import { useCookies } from "react-cookie";
 import Header from '../Header/Header';
 import './Product.css';
 import '../Utilities/No_results.css';
+import Notification from '../Notification/Notification';
 
 function Product(){
 
     const [cookies] = useCookies(["access_token"]);
+    const [favorites, setFavorites] = useState([]);
     const navigate = useNavigate();
     const { id } = useParams();
     const [product, setProduct] = useState([]);
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
+    const [showNotification, setShowNotification] = useState(false);
+    const [message, setMessage] = useState("");
+
+    const closeNotification = () => {
+      setShowNotification(false);
+  };
 
     const fetchProduct = async () => {
         try {
@@ -41,7 +49,6 @@ function Product(){
     };
 
     const addToCart = async () => {
-
         if (cookies.access_token) {
             try {
                 const response = await axios.post(`http://localhost:8000/api/add_to_cart/${id}`, {
@@ -53,29 +60,80 @@ function Product(){
                   'Content-Type': 'application/json'
                 }
               });
+              setMessage(response.data.message);
+              setShowNotification(true);
             } catch (error) {
-              console.error('Error adding product to cart:', error);
+              setMessage(error.response.data.error);
+              setShowNotification(true);
             }
         }
         else {
             navigate('/login');
         }
-        
     };
+
+    const addToFavoritesToggle = async (productId) => {
+        await addToFavorites(productId);
+        fetchProduct();
+        fetchFavorites();
+    };
+
+    const addToFavorites = async (productId) => {
+        if (cookies.access_token) {
+            try {
+                const response = await axios.post(`http://localhost:8000/api/toggle_favorite/${productId}`, null, {
+                  headers: {
+                      'Authorization': `Bearer ${cookies.access_token}`,
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    }
+                });
+              } catch (error) {
+                console.error('Error adding to Favorites:', error);
+              }
+        }
+        else{
+            navigate('/login');
+        }
+    };
+
+    const fetchFavorites = async () => {
+        if (cookies.access_token) {
+          try {
+            const response = await axios.get('http://localhost:8000/api/all_favorites', {
+              headers: {
+                'Authorization': `Bearer ${cookies.access_token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+            });
+            setFavorites(response.data.favorites);
+          } catch (error) {
+            console.error('Error fetching favorites:', error);
+          }
+        } 
+      };
 
     useEffect(() => {
        fetchProduct();
     }, [id]);
 
+    useEffect(() => {
+        fetchFavorites();
+      }, []);
+
     return(
         <>
+        {showNotification && (
+            <Notification message={message} onClose={closeNotification} />
+        )}
         <Header/>
         {Object.keys(product).length > 0 ?
         <div className="product_wrapper">
 
-        <div className="add_to_favorite" data-id="">
-            <button className="favorite_button" data-in-favorites="">
-                <i className="fa-regular fa-heart"></i>
+        <div className="add_to_favorite">
+            <button className="favorite_button" onClick={() => addToFavoritesToggle(product.id)}>
+                <i className= {favorites.find(favorite => favorite.product_id === product.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
             </button>
         </div>
 

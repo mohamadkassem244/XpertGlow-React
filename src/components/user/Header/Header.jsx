@@ -1,7 +1,7 @@
 import React, { useState ,useEffect} from 'react';
 import axios from 'axios';
 import { useCookies } from "react-cookie";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate ,Link} from 'react-router-dom';
 import './Header.css';
 
 function Header(){
@@ -15,14 +15,18 @@ function Header(){
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [openCategory, setOpenCategory] = useState(null);
 
-    const openCategories = () => {setCategoriesOpen(true);};
+    const openCategories = () => {setCategoriesOpen(true);setUserOptions(false);};
     const closeCategories = () => {setCategoriesOpen(false);};
-    const openUserOptions = () => {setUserOptions(true);};
+    const openUserOptions = () => {setUserOptions(true);setCategoriesOpen(false);};
     const closeUserOptions = () => {setUserOptions(false);};
     const openSearch = () => {setSearchOpen(true);};
     const closeSearch = () => {setSearchOpen(false);};
     const toggleLoginOptions = () => {setLoginOptionsOpen(!isLoginOptionsOpen);};
+    const openOneCategory = (category) => {
+        setOpenCategory(openCategory === category.id ? null : category.id);
+    };
 
     const[cookies , setCookies] = useCookies("access_token");
     const navigate = useNavigate();
@@ -97,6 +101,20 @@ function Header(){
           } else {
             setIsLogin(false);
         }
+      }, []);
+
+      useEffect(() => {
+        function check_width_for_search() {
+          var width = window.innerWidth;
+          if (width > 768) {
+            closeSearch();
+          }
+        }
+        check_width_for_search();
+        window.addEventListener('resize', check_width_for_search);
+        return () => {
+          window.removeEventListener('resize', check_width_for_search);
+        };
       }, []);
 
     return(
@@ -180,8 +198,6 @@ function Header(){
                     )
                     }
 
-                    
-    
                     <div id="login_options" className={isLoginOptionsOpen ? "login_options block" : "login_options"}>
                         <h3>Welcome to XpertGlow</h3>
                         <a href="/login">login</a>
@@ -193,13 +209,16 @@ function Header(){
 
         <div id="xpertglow_nav_2" className={isCategoriesOpen ? "xpertglow_nav_2 opennav" : "xpertglow_nav_2"}>
             <div className="close_btn"><button onClick={closeCategories}><i className="fa-solid fa-xmark"></i></button></div>
-            <div id="categories_container" className={isCategoriesOpen ? "categories_container block" : "categories_container"}>
+            <div id="categories_container" className={isCategoriesOpen ? "categories_container block" : "categories_container close"}>
                 {categories.map(category => (
-                    <div key={category.id} className="category">
-                    <button>{category.name}<i className="icon fa-solid fa-arrow-down"></i></button>
-                    {category.subcategories.map(subcategory => (
-                        <a key={subcategory.id} href="#" className="sub_category">{subcategory.name}</a>
-                    ))}  
+                    <div key={category.id} className="category" onClick={() => openOneCategory(category)}>
+                    <button>{category.name}<i className={`fa-solid fa-arrow-${openCategory === category.id ? 'up' : 'down'}`}></i></button>
+                    {openCategory === category.id && (
+                        (category.subcategories.map(subcategory => (
+                            <Link key={subcategory.id} to={`/subcategory/${subcategory.id}`} className="sub_category">{subcategory.name}</Link>
+                        ))
+                        )
+                    )}
                     </div>
                 ))}
             </div>
@@ -207,7 +226,7 @@ function Header(){
 
         <div id="xpertglow_nav_3" className={isUserOptionsOpen ? "xpertglow_nav_3 opennav" : "xpertglow_nav_3"}>
             <div className="close_btn"><button onClick={closeUserOptions}><i className="fa-solid fa-xmark"></i></button></div>
-            <div id="user_options_container" className={isUserOptionsOpen ? "user_options_container open" : "user_options_container"}>
+            <div id="user_options_container" className={isUserOptionsOpen ? "user_options_container open" : "user_options_container close"}>
                 <a href="/account" className="user_option">
                     <button><i className="fa-solid fa-gears"></i>Account</button>
                 </a>
@@ -219,9 +238,6 @@ function Header(){
                 </a>
             </div>
         </div>
-
-        
-        
     </>
     );
 }

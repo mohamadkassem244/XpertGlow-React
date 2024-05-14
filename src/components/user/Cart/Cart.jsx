@@ -5,6 +5,7 @@ import { useNavigate ,Link} from 'react-router-dom';
 import Header from "../Header/Header";
 import './Cart.css';
 import '../Utilities/No_results.css';
+import Notification from '../Notification/Notification';
 
 function Cart(){
     document.title = "Your Cart";
@@ -15,6 +16,12 @@ function Cart(){
     const [totalPrice, setTotalPrice] = useState(0);
     const [selectedAddressValue, setSelectedAddressValue] = useState('');
     const navigate = useNavigate();
+    const [showNotification, setShowNotification] = useState(false);
+    const [message, setMessage] = useState("");
+
+    const closeNotification = () => {
+      setShowNotification(false);
+  };
 
     const handleAddressChange = (event) => {
       setSelectedAddressValue(event.target.value);
@@ -60,6 +67,8 @@ function Cart(){
             }
           });
           fetchCart();
+          setMessage(response.data.message);
+          setShowNotification(true);
         } catch (error) {
           console.error('Error removing cart item from cart:', error);
         }
@@ -75,6 +84,8 @@ function Cart(){
             }
           });
           fetchCart();
+          setMessage(response.data.message);
+          setShowNotification(true);
         } catch (error) {
           console.error('Error clearing cart:', error);
         }
@@ -92,6 +103,8 @@ function Cart(){
               }
             });
             fetchCart();
+            setMessage(response.data.message);
+            setShowNotification(true);
           } catch (error) {
             console.error('Error increasing quantity:', error);
           }
@@ -110,6 +123,8 @@ function Cart(){
               }
             });
             fetchCart();
+            setMessage(response.data.message);
+            setShowNotification(true);
           } catch (error) {
             console.error('Error increasing quantity:', error);
           }
@@ -129,6 +144,8 @@ function Cart(){
               }
             });
             fetchCart();
+            setMessage(response.data.message);
+            setShowNotification(true);
           } catch (error) {
             console.error('Error placing order:', error);
           }
@@ -159,6 +176,9 @@ function Cart(){
 
 return(
     <>
+    {showNotification && (
+        <Notification message={message} onClose={closeNotification} />
+    )}
     <Header/>
     {cart && cart.length > 0 ?
           <div className="cart_wrapper">

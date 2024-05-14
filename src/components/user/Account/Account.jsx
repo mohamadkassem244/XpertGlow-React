@@ -4,6 +4,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate} from 'react-router-dom';
 import './Account.css';
 import Header from '../Header/Header';
+import Notification from '../Notification/Notification';
 
 function Account(){
 
@@ -15,6 +16,8 @@ function Account(){
     const [showAddress, setShowAddress] = useState(false);
     const [currentPassword, setcurrentPassword] = useState('');
     const [newPassword, setnewPassword] = useState('');
+    const [showNotification, setShowNotification] = useState(false);
+    const [message, setMessage] = useState("");
     const [newAddress, setNewAddress] = useState({
         name: "",
         surname: "",
@@ -25,6 +28,9 @@ function Account(){
         phone: "",
       });
 
+    const closeNotification = () => {
+        setShowNotification(false);
+    };
 
     const openPassword = () => {
         setShowPassword(true);
@@ -73,6 +79,8 @@ function Account(){
               }
             });
             if (response.status === 200) {
+                 setMessage(response.data.message);
+                setShowNotification(true);
                 setCookies("access_token", "");
                 window.localStorage.removeItem("UserID");
                 window.localStorage.removeItem("UserName");
@@ -80,15 +88,19 @@ function Account(){
                 navigate('/login');
             }
           } catch (error) {
-            if (error.response) {
-                console.log(error.response.data.error);
+            if(error.response.status === 422){
+              setMessage(error.response.data.message);
             }
+            else{
+              setMessage(error.response.data.error);
+            }
+            setShowNotification(true);
           }
       };
 
       const deleteAddress = async (addressId) => {
         try {
-          await axios.put(
+          const response =  await axios.put(
             `http://localhost:8000/api/addresses/deactivate/${addressId}`,
             {},
             {
@@ -99,6 +111,8 @@ function Account(){
               },
             }
           );
+          setMessage(response.data.message);
+          setShowNotification(true);
           fetchAddresses();
         } catch (error) {
           console.error("Error Deleting Address", error);
@@ -120,6 +134,8 @@ function Account(){
               },
             }
           );
+          setMessage(response.data.message);
+          setShowNotification(true);
           fetchAddresses();
         } catch (error) {
           console.error(error.response.data);
@@ -138,6 +154,9 @@ function Account(){
 
     return(
         <>
+        {showNotification && (
+        <Notification message={message} onClose={closeNotification} />
+        )}
         <Header/>
         <div className="account_wrapper">
 

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCookies } from "react-cookie";
 import Header from '../Header/Header';
 import './Vieworder.css';
+import Notification from '../Notification/Notification';
 
 function Vieworder(){
 
@@ -13,6 +14,12 @@ function Vieworder(){
     const [order, setOrder] = useState([]);
     const [orderStatus, setOrderStatus] = useState("");
     const navigate = useNavigate();
+    const [showNotification, setShowNotification] = useState(false);
+    const [message, setMessage] = useState("");
+
+    const closeNotification = () => {
+      setShowNotification(false);
+    };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -110,6 +117,8 @@ function Vieworder(){
                     }
                 }
             );
+            setMessage(response.data.message);
+            setShowNotification(true);
             fetchOrder();
         } catch (error) {
             console.error('Error Cancelling Order:', error);
@@ -128,6 +137,8 @@ function Vieworder(){
                     }
                 }
             );
+            setMessage(response.data.message);
+            setShowNotification(true);
             fetchOrder();
         } catch (error) {
             console.error('Error Delete Order Item:', error);
@@ -144,6 +155,9 @@ function Vieworder(){
 
     return(
         <>
+        {showNotification && (
+        <Notification message={message} onClose={closeNotification} />
+        )}
         <Header/>
         {Object.keys(order).length > 0 ?
         <div className="order_wrapper" data-order-status={orderStatus}>
@@ -160,10 +174,13 @@ function Vieworder(){
         </div>
 
         <div className="order_information">
-            
-            <div className="order_cancel">
-                <button id="cancel" onClick={cancelOrder}>Cancel Order</button>
-            </div>
+            {
+               order.status === "pending" && (
+                <div className="order_cancel">
+                    <button id="cancel" onClick={cancelOrder}>Cancel Order</button>
+                </div>
+               )
+            }
             <div className="order_nb"><span>Order Number : </span>{order.id}</div>
             <div className="order_date"><span>Placed on : </span>{formatDate(order.created_at)}</div>
             <div className="order_price"><span>Total Price : </span>$ {order.total_price}</div>
@@ -210,7 +227,13 @@ function Vieworder(){
                     <div className="item_name">{orderItem.product.name}</div>
                     <div className="item_price">$ {orderItem.price}</div>
                     <div className="item_quantity">{orderItem.quantity} Item(s)</div>
-                    <button className="item_remove" onClick={() => removeItem(orderItem.id)}>Remove</button>
+
+                    {
+                    order.status === "pending" && (
+                        <button className="item_remove" onClick={() => removeItem(orderItem.id)}>Remove</button>
+                    )
+                    }
+                    
                 </div>
                 </div>
                     
