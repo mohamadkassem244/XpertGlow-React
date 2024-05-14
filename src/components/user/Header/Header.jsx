@@ -41,6 +41,7 @@ function Header(){
             setCookies("access_token", "");
             window.localStorage.removeItem("UserID");
             window.localStorage.removeItem("UserName");
+            window.localStorage.removeItem("UserEmail");
             navigate('/login');
           } else {
             console.error('Logout request failed');

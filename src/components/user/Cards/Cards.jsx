@@ -44,7 +44,11 @@ function Cards({ products, favorites }){
                     </div>
                     <div className="item_top">
                             <Link to={`/product/${product.id}`}>
-                            <img src={require(`../../../images/products/${product.images[0].path}`)} />
+                            {product.images && product.images.length > 0 ? (
+                                <img src={require(`../../../images/products/${product.images[0].path}`)} alt={product.name} />
+                            ) : (
+                                <img src="" alt="No Image" />
+                            )}
                             </Link>
                     </div>
                     <div className="item_bottom">

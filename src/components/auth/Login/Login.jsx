@@ -25,6 +25,7 @@ function Login() {
         setCookies("access_token" , response.data.token);
         window.localStorage.setItem("UserID" , response.data.user.id);
         window.localStorage.setItem("UserName" , response.data.user.name);
+        window.localStorage.setItem("UserEmail" , response.data.user.email);
         const isAdmin = response.data.user.isAdmin;
         if(isAdmin){
           navigate('/admin');

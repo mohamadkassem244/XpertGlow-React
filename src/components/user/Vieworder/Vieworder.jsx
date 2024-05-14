@@ -94,7 +94,7 @@ function Vieworder(){
                 navigate('/order');
             }
           } catch (error) {
-            console.error('Error fetching Order:', error);
+            navigate('/order');
           }
     };
 
@@ -129,7 +129,6 @@ function Vieworder(){
                 }
             );
             fetchOrder();
-
         } catch (error) {
             console.error('Error Delete Order Item:', error);
         }
@@ -146,77 +145,86 @@ function Vieworder(){
     return(
         <>
         <Header/>
+        {Object.keys(order).length > 0 ?
         <div className="order_wrapper" data-order-status={orderStatus}>
 
-                <div className="order_status">
-                    <div className="line_1"></div>
-                    <div className="line_2"></div>
-                    <div className="pending">Pending</div>
-                    <div className="processing">Processing</div>
-                    <div className="completed">Completed</div>
-                    <div className="pending_circle"></div>
-                    <div className="processing_circle"></div>
-                    <div className="completed_circle"></div>
-                </div>
+        <div className="order_status">
+            <div className="line_1"></div>
+            <div className="line_2"></div>
+            <div className="pending">Pending</div>
+            <div className="processing">Processing</div>
+            <div className="completed">Completed</div>
+            <div className="pending_circle"></div>
+            <div className="processing_circle"></div>
+            <div className="completed_circle"></div>
+        </div>
 
-                <div className="order_information">
-                    
-                    <div className="order_cancel">
-                        <button id="cancel" onClick={cancelOrder}>Cancel Order</button>
-                    </div>
-                    <div className="order_nb"><span>Order Number : </span>{order.id}</div>
-                    <div className="order_date"><span>Placed on : </span>{formatDate(order.created_at)}</div>
-                    <div className="order_price"><span>Total Price : </span>$ {order.total_price}</div>
-                    <div className="order_status_text"><span>Status : </span>{order.status}</div>
-                    <div className="order_address">
-                        <span>Address : </span>
-                        {order.address && (
+        <div className="order_information">
+            
+            <div className="order_cancel">
+                <button id="cancel" onClick={cancelOrder}>Cancel Order</button>
+            </div>
+            <div className="order_nb"><span>Order Number : </span>{order.id}</div>
+            <div className="order_date"><span>Placed on : </span>{formatDate(order.created_at)}</div>
+            <div className="order_price"><span>Total Price : </span>$ {order.total_price}</div>
+            <div className="order_status_text"><span>Status : </span>{order.status}</div>
+            <div className="order_address">
+                <span>Address : </span>
+                {order.address && (
+                    <>
+                        {order.address.name && `${order.address.name} `}
+                        {order.address.surname && `${order.address.surname} - `}
+                        {order.address.address && `${order.address.address} - `}
+                        {order.address.more_info && `${order.address.more_info} - `}
+                        {order.address.district && `${order.address.district} / `}
+                        {order.address.locality && `${order.address.locality} - `}
+                        {order.address.phone && `${order.address.phone}`}
+                    </>
+                )}
+            </div>
+            {order.order_items && (
+                <div className="order_total_items">
+                    <span>
+                        {order.order_items.length > 0 && (
                             <>
-                                {order.address.name && `${order.address.name} `}
-                                {order.address.surname && `${order.address.surname} - `}
-                                {order.address.address && `${order.address.address} - `}
-                                {order.address.more_info && `${order.address.more_info} - `}
-                                {order.address.district && `${order.address.district} / `}
-                                {order.address.locality && `${order.address.locality} - `}
-                                {order.address.phone && `${order.address.phone}`}
+                                {order.order_items.reduce((total, item) => total + item.quantity, 0)} Item(s)
                             </>
                         )}
-                    </div>
-                    {order.order_items && (
-                        <div className="order_total_items">
-                            <span>
-                                {order.order_items.length > 0 && (
-                                    <>
-                                        {order.order_items.reduce((total, item) => total + item.quantity, 0)} Item(s)
-                                    </>
-                                )}
-                            </span>
-                        </div>
-                    )}
+                    </span>
                 </div>
-
-                {order.order_items && (
-                    <div className="order_items">
-                        {order.order_items.map((orderItem) => (
-                        <div className="item" key={orderItem.id}>
-                        <div className="img_container">
-                        <img key={orderItem.id} src={require(`../../../images/products/${orderItem.product.images[0].path}`)} alt="Product Image"/>
-                        </div>
-                        <div className="item_information">
-                            <div className="item_name">{orderItem.product.name}</div>
-                            <div className="item_price">$ {orderItem.price}</div>
-                            <div className="item_quantity">{orderItem.quantity} Item(s)</div>
-                            <div className="item_remove">
-                                <button onClick={() => removeItem(orderItem.id)}>Remove</button>
-                            </div>
-                  
-                        </div>
-                        </div>
-                            
-                        ))}
-                    </div>
-                )}
+            )}
         </div>
+
+        {order.order_items && (
+            <div className="order_items">
+                {order.order_items.map((orderItem) => (
+                <div className="item" key={orderItem.id}>
+                <div className="img_container">
+                {orderItem.product.images && orderItem.product.images.length > 0 ? (
+                    <img key={orderItem.id} src={require(`../../../images/products/${orderItem.product.images[0].path}`)} alt="Product Image"/>
+                    ): (
+                    <img src="" alt="No Image" />
+                )}
+                </div>
+                <div className="item_information">
+                    <div className="item_name">{orderItem.product.name}</div>
+                    <div className="item_price">$ {orderItem.price}</div>
+                    <div className="item_quantity">{orderItem.quantity} Item(s)</div>
+                    <button className="item_remove" onClick={() => removeItem(orderItem.id)}>Remove</button>
+                </div>
+                </div>
+                    
+                ))}
+            </div>
+        )}
+        </div>
+        :
+        <div className="no_results">
+            <div className="no_results_i"><i className="fa-solid fa-ban"></i></div>
+            <div className="no_results_text">The Order not found</div>
+         </div>
+        }
+
         </>
     );
 }

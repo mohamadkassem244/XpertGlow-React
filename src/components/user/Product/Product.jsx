@@ -113,9 +113,9 @@ function Product(){
         </div>
         </div>
         :
-        <div class="no_results">
-            <div class="no_results_i"><i class="fa-solid fa-ban"></i></div>
-            <div class="no_results_text">This Product Not found</div>
+        <div className="no_results">
+            <div className="no_results_i"><i className="fa-solid fa-ban"></i></div>
+            <div className="no_results_text">This Product Not found</div>
         </div> 
         }
         </>

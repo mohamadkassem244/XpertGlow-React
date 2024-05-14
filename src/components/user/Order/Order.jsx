@@ -64,7 +64,14 @@ function Order(){
                  <div className="order_images">
                      <div className="img_container">
                      {order.order_items.map(orderItem => (
-                     <img key={orderItem.id} src={require(`../../../images/products/${orderItem.product.images[0].path}`)} alt="Product Image"/>
+                      
+                     (orderItem.product.images && orderItem.product.images.length > 0 ? (
+                      <img key={orderItem.id} src={require(`../../../images/products/${orderItem.product.images[0].path}`)} alt="Product Image"/>
+                      ) : (
+                          <img src="" alt="No Image" />
+                      )
+                      )
+
                      ))}
                      </div>
                  </div>
@@ -73,10 +80,10 @@ function Order(){
          ))}
          </div>
          :
-         <div class="no_results">
-            <div class="no_results_i"><i class="fa-solid fa-ban"></i></div>
-            <div class="no_results_text">No Order(s) Placed</div>
-        </div>
+         <div className="no_results">
+            <div className="no_results_i"><i className="fa-solid fa-ban"></i></div>
+            <div className="no_results_text">No Order(s) Placed</div>
+         </div>
          }
         
         </>

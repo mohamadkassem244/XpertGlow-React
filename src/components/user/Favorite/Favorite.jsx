@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from "react-cookie";
-import { useNavigate} from 'react-router-dom';
+import { useNavigate ,Link} from 'react-router-dom';
 import Header from "../Header/Header";
 import './Favorite.css';
 import '../Utilities/No_results.css';
@@ -68,11 +68,13 @@ function Favorite(){
                     </button>
                 </div>
                 <div className="item_top">
-                    <a href="#">
-                        {favorite.product.images && favorite.product.images.length > 0 &&
-                            <img src={require(`../../../images/products/${favorite.product.images[0].path}`)} alt={favorite.product.name} />
-                        }
-                    </a>
+                    <Link to={`/product/${favorite.product.id}`}>
+                            {favorite.product.images && favorite.product.images.length > 0 ? (
+                                <img src={require(`../../../images/products/${favorite.product.images[0].path}`)} alt={favorite.product.name} />
+                            ) : (
+                              <img src="" alt="No Image" />
+                            )}
+                    </Link>
                 </div>
                 <div className="item_bottom">
                     <div className="item_name">
@@ -84,9 +86,9 @@ function Favorite(){
         ))}
         </div>
         :
-        <div class="no_results">
-            <div class="no_results_i"><i class="fa-solid fa-heart-crack"></i></div>
-            <div class="no_results_text">Your Favorites is Empty</div>
+        <div className="no_results">
+            <div className="no_results_i"><i className="fa-solid fa-heart-crack"></i></div>
+            <div className="no_results_text">Your Favorites is Empty</div>
         </div> 
         }
         </>

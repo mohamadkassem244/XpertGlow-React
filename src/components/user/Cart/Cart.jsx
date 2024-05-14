@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from "react-cookie";
-import { useNavigate} from 'react-router-dom';
+import { useNavigate ,Link} from 'react-router-dom';
 import Header from "../Header/Header";
 import './Cart.css';
 import '../Utilities/No_results.css';
@@ -163,7 +163,7 @@ return(
     {cart && cart.length > 0 ?
           <div className="cart_wrapper">
           <div className="all_items">
-            
+          
           <div className="item empty-item">
               <div className="item_image"></div>
               <div className="item_name"></div>
@@ -177,11 +177,15 @@ return(
           <div className="item" key={cartItem.id}>
               <div className="item_image">
                   <div className="image_container">
-                  <img src={require(`../../../images/products/${cartItem.product.images[0].path}`)} />
+                  {cartItem.product.images && cartItem.product.images.length > 0 ? (
+                            <img src={require(`../../../images/products/${cartItem.product.images[0].path}`)} />
+                            ) : (
+                            <img src="" alt="No Image" />
+                    )}
                   </div>
               </div>
               <div className="item_name">
-                  <a href="">{cartItem.product.name}</a>
+              <Link to={`/product/${cartItem.product.id}`}>{cartItem.product.name}</Link>
               </div>
   
               <div className="item_quantity">
@@ -222,9 +226,9 @@ return(
           </div>
           </div> 
           : 
-          <div class="no_results">
-          <div class="no_results_i"><i class="fa-solid fa-ban"></i></div>
-          <div class="no_results_text">Your Cart is Empty</div>
+          <div className="no_results">
+          <div className="no_results_i"><i className="fa-solid fa-ban"></i></div>
+          <div className="no_results_text">Your Cart is Empty</div>
           </div>
           }
     </>

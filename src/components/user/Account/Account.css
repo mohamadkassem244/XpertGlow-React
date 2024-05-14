@@ -36,7 +36,7 @@
 
 
 .password_input , .address_input{
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -46,7 +46,7 @@
 }
 
 .all_addresses{
-    display: none;
+    display: flex;
     flex-direction: column;
     gap: 15px;
     width: 100%;
@@ -63,11 +63,7 @@
     padding: 10px;
 }
 
-.all_addresses form{
-    display: inline;
-}
-
-.all_addresses form button{
+.all_addresses button{
     background-color: black;
     color: white;
     height: 30px;
@@ -90,7 +86,7 @@
     width: 50%;
 }
 
-.password_input form input,.address_input form input {
+.password_input input,.address_input input {
     width: 50%;
     height: 40px;
     padding-left: 20px; 
@@ -106,10 +102,11 @@
     border: 1px solid black;
 }
 
-.password_input form input[type="submit"],.address_input form input[type="submit"]{
+.password_input .submit_button,.address_input .submit_button{
     background-color: black;
     padding-left: 0; 
     color: white;
+    text-align: center;
 }
 
 @media screen and (max-width: 768px) {

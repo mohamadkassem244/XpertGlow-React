@@ -8,9 +8,41 @@ import Header from '../Header/Header';
 function Account(){
 
     document.title = localStorage.getItem('UserName');
-    const [cookies] = useCookies(["access_token"]);
-    const [addresses, setAddresses] = useState([]);
+    const[cookies , setCookies] = useCookies("access_token");
     const navigate = useNavigate();
+    const [addresses, setAddresses] = useState([]);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showAddress, setShowAddress] = useState(false);
+    const [currentPassword, setcurrentPassword] = useState('');
+    const [newPassword, setnewPassword] = useState('');
+    const [newAddress, setNewAddress] = useState({
+        name: "",
+        surname: "",
+        address: "",
+        more_info: "",
+        district: "",
+        locality: "",
+        phone: "",
+      });
+
+
+    const openPassword = () => {
+        setShowPassword(true);
+        setShowAddress(false);
+    };
+    
+    const closePassword = () => {
+        setShowPassword(false);
+    };
+    
+    const openAddress = () => {
+        setShowAddress(true);
+        setShowPassword(false);
+    };
+    
+    const closeAddress = () => {
+        setShowAddress(false);
+    };
 
     const fetchAddresses = async () => {
         try {
@@ -24,6 +56,73 @@ function Account(){
           setAddresses(response.data.addresses);
         } catch (error) {
           console.error('Error fetching Addresses:', error);
+        }
+      };
+
+      const changePassword = async () => {
+
+          try {
+            const response = await axios.put('http://localhost:8000/api/users/change_password',{
+                current_password: currentPassword,
+                new_password: newPassword,
+            },{
+              headers: {
+                Authorization: `Bearer ${cookies.access_token}`,
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              }
+            });
+            if (response.status === 200) {
+                setCookies("access_token", "");
+                window.localStorage.removeItem("UserID");
+                window.localStorage.removeItem("UserName");
+                window.localStorage.removeItem("UserEmail");
+                navigate('/login');
+            }
+          } catch (error) {
+            if (error.response) {
+                console.log(error.response.data.error);
+            }
+          }
+      };
+
+      const deleteAddress = async (addressId) => {
+        try {
+          await axios.put(
+            `http://localhost:8000/api/addresses/deactivate/${addressId}`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${cookies.access_token}`,
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          fetchAddresses();
+        } catch (error) {
+          console.error("Error Deleting Address", error);
+        }
+      };
+
+      const addAddress = async (event) => {
+        event.preventDefault();
+        try {
+          const response = await axios.post(`http://localhost:8000/api/addresses`,
+          {
+            ...newAddress,
+          },
+            {
+              headers: {
+                Authorization: `Bearer ${cookies.access_token}`,
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          fetchAddresses();
+        } catch (error) {
+          console.error(error.response.data);
         }
       };
 
@@ -42,55 +141,58 @@ function Account(){
         <Header/>
         <div className="account_wrapper">
 
-                <div className="account_name">nour</div>
-                <div className="account_email">Email : nourkassem@gmail.com</div>
+                <div className="account_name">{localStorage.getItem('UserName')}</div>
+                <div className="account_email">Email : {localStorage.getItem('UserEmail')}</div>
                 <div className="account_password">
                     <div>
-                        <button id="password">Password</button>
+                        <button id="password" onClick={openPassword}>Password</button>
                     </div>
-                    <div className="password_input">
-                        <form method="POST" action="/change_password">
-                            <input type="password" name="current_password" placeholder="Current Password" required/>
-                            <input type="password" name="new_password" placeholder="New Password" required/>
-                            <input type="submit" value="Submit"/>
-                        </form>
-                        <button className="close_password">Close</button>
-                    </div>
+                    {
+                    showPassword && (
+                        <div className="password_input">
+                        <input type="password" onChange={e => setcurrentPassword(e.target.value)} value={currentPassword} placeholder="Current Password" required/>
+                        <input type="password" onChange={e => setnewPassword(e.target.value)} value={newPassword} placeholder="New Password" required/>
+                        <button className="submit_button" onClick={changePassword}>Submit</button>
+                        <button className="close_password" onClick={closePassword}>Close</button>
+                        </div>
+                    )
+                    }
                 </div>
 
                 <div className="account_addresses">
                     <div>
-                        <button id="address">Addresses</button>
+                        <button id="address" onClick={openAddress}>Addresses</button>
                     </div>
-
+                    {
+                        showAddress && (<>
                     <div className="address_input">
-                        <form method="POST" action="/add_address">
-                            <input type="text" name="name" placeholder="Name" required/>
-                            <input type="text" name="surname" placeholder="Surname" required/>
-                            <input type="text" name="address" placeholder="Address" required/>
-                            <input type="text" name="more_info" placeholder="More Info" required/>
-                            <input type="text" name="district" placeholder="District" required/>
-                            <input type="text" name="locality" placeholder="Locality" required/>
-                            <input type="text" name="phone" placeholder="Phone" required/>
-                            <input type="submit" value="New Address"/>
-                        </form>
-                        <button className="close_address">Close</button>
+                    <form onSubmit={addAddress}>
+                    <input type="text" name="name" value={newAddress.name} onChange={(e) => setNewAddress({ ...newAddress, name: e.target.value })} placeholder="Name" required />
+                    <input type="text" name="surname" value={newAddress.surname} onChange={(e) => setNewAddress({ ...newAddress, surname: e.target.value })} placeholder="Surname" required />
+                    <input type="text" name="address" value={newAddress.address} onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })} placeholder="Address" required />
+                    <input type="text" name="more_info" value={newAddress.more_info} onChange={(e) => setNewAddress({ ...newAddress, more_info: e.target.value })} placeholder="More Info" required />
+                    <input type="text" name="district" value={newAddress.district} onChange={(e) => setNewAddress({ ...newAddress, district: e.target.value })} placeholder="District" required />
+                    <input type="text" name="locality" value={newAddress.locality} onChange={(e) => setNewAddress({ ...newAddress, locality: e.target.value })} placeholder="Locality" required />
+                    <input type="text" name="phone" value={newAddress.phone} onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })} placeholder="Phone" required />
+                    <button className="submit_button">New Address</button>
+                    <button className="close_address" onClick={closeAddress}>
+                        Close
+                    </button>
+                    </form>
                     </div>
-
-                    <div className="all_addresses">  
-                        {addresses.filter(address => address.isDeleted === 0).map(address => (
-                            <li>
-                            {address.name} {address.surname} - 
-                            {address.address} - {address.more_info} -
-                            {address.district} / {address.locality} - 
-                            {address.phone}
-                            <form action="/delete_address/{{$address->id}}" method="POST">
-                            
-                                <button type="submit">Delete</button>
-                            </form>
-                        </li>
-                        ))}
-                    </div>
+                           <div className="all_addresses">  
+                                {addresses.filter(address => address.isDeleted === 0).map(address => (
+                                    <li key={address.id}>
+                                    {address.name} {address.surname} - 
+                                    {address.address} - {address.more_info} -
+                                    {address.district} / {address.locality} - 
+                                    {address.phone}
+                                        <button  onClick={() => deleteAddress(address.id)}>Delete</button>
+                                    </li>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
         </div>
         </>
