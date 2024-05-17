@@ -15,6 +15,11 @@ import Adminhome from './components/admin/AdminHome/Adminhome';
 import Adminuser from './components/admin/AdminUser/Adminuser';
 import Admincategory from './components/admin/AdminCategory/Admincategory';
 import Admincategoryedit from './components/admin/AdminCategory/Admincategoryedit';
+import Adminproduct from './components/admin/AdminProduct/Adminproduct';
+import Adminproductedit from './components/admin/AdminProduct/Adminproductedit';
+import Adminsubcategory from './components/admin/AdminSubcategory/Adminsubcategory';
+import Adminsubcategoryedit from './components/admin/AdminSubcategory/Adminsubcategoryedit';
+import Admincarousel from './components/admin/AdminCarousel/Admincarousel';
 
 function App() {
   return (
@@ -35,6 +40,11 @@ function App() {
         <Route path="/admin/user" element={<Adminuser/>}/>
         <Route path="/admin/category" element={<Admincategory/>}/>
         <Route path="/admin/category/:id" element={<Admincategoryedit/>}/>
+        <Route path="/admin/subcategory" element={<Adminsubcategory/>}/>
+        <Route path="/admin/subcategory/:id" element={<Adminsubcategoryedit/>}/>
+        <Route path="/admin/product" element={<Adminproduct/>}/>
+        <Route path="/admin/product/:id" element={<Adminproductedit/>}/>
+        <Route path="/admin/carousel" element={<Admincarousel/>}/>
       </Routes>
     </Router>
   );

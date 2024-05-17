@@ -112,7 +112,7 @@ function Admincategory(){
                     {categories.map(category => (
                         <div key={category.id} className="col-6 col-sm-6 col-md-3 col-lg-3 col-xl-3 col-xxl-3 p-3">
                             <div className="card bg-dark text-bg-danger">                         
-                                <img className="card-img-top" src="{{ asset('storage/images/categories/' . $category->images->first()->path) }}" alt="Card image"/>
+                                <img className="card-img-top" src="" alt="Card image"/>
                                 <div className="card-body">
                                     <h4 className="card-title"><b>Category ID : </b>{category.id}</h4>
                                     <p><b>Name : </b>{category.name}</p>
