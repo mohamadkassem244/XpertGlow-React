@@ -13,8 +13,8 @@ function Adminproductedit(){
     const [subcategories,setSubcategories] = useState([]);
     const [showNotification, setShowNotification] = useState(false);
     const [messageType, setMessageType] = useState("success");
-    const [image, setImage] = useState(null);
     const [message, setMessage] = useState("");
+    const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({
       name: "",
       description: "",

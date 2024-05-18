@@ -20,6 +20,8 @@ import Adminproductedit from './components/admin/AdminProduct/Adminproductedit';
 import Adminsubcategory from './components/admin/AdminSubcategory/Adminsubcategory';
 import Adminsubcategoryedit from './components/admin/AdminSubcategory/Adminsubcategoryedit';
 import Admincarousel from './components/admin/AdminCarousel/Admincarousel';
+import Adminorder from './components/admin/AdminOrder/Adminorder';
+import Adminorderedit from './components/admin/AdminOrder/Adminorderedit';
 
 function App() {
   return (
@@ -45,6 +47,8 @@ function App() {
         <Route path="/admin/product" element={<Adminproduct/>}/>
         <Route path="/admin/product/:id" element={<Adminproductedit/>}/>
         <Route path="/admin/carousel" element={<Admincarousel/>}/>
+        <Route path="/admin/order" element={<Adminorder/>}/>
+        <Route path="/admin/order/:id" element={<Adminorderedit/>}/>
       </Routes>
     </Router>
   );
